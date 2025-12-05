@@ -15,6 +15,7 @@ export async function AuthShowcase() {
           size="lg"
           formAction={async () => {
             "use server";
+
             const res = await auth.api.signInSocial({
               body: {
                 provider: "discord",
@@ -24,6 +25,7 @@ export async function AuthShowcase() {
             if (!res.url) {
               throw new Error("No URL returned from signInSocial");
             }
+            console.log(`zzz res`, res);
             redirect(res.url);
           }}
         >
