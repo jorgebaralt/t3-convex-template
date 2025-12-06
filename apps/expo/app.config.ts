@@ -30,11 +30,12 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
   },
-  // extra: {
-  //   eas: {
-  //     projectId: "your-eas-project-id",
-  //   },
-  // },
+  extra: {
+    convexUrl: process.env.EXPO_PUBLIC_CONVEX_URL,
+    // eas: {
+    //   projectId: "your-eas-project-id",
+    // },
+  },
   experiments: {
     tsconfigPaths: true,
     typedRoutes: true,

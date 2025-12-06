@@ -1,29 +1,22 @@
 import "server-only";
 
 import { cache } from "react";
-import { headers } from "next/headers";
-import { nextCookies } from "better-auth/next-js";
+import { fetchAction, fetchQuery } from "convex/nextjs";
+import { api } from "@acme/convex";
+import { createAuth } from "@acme/convex/auth";
+import { getToken as getTokenNextjs } from "@convex-dev/better-auth/nextjs";
 
-import { initAuth } from "@acme/auth";
+export const getToken = () => {
+  return getTokenNextjs(createAuth);
+};
 
-import { env } from "~/env";
-
-const baseUrl =
-  env.VERCEL_ENV === "production"
-    ? `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : env.VERCEL_ENV === "preview"
-      ? `https://${env.VERCEL_URL}`
-      : "http://localhost:3000";
-
-export const auth = initAuth({
-  baseUrl,
-  productionUrl: baseUrl,
-  secret: env.AUTH_SECRET,
-  discordClientId: env.AUTH_DISCORD_ID,
-  discordClientSecret: env.AUTH_DISCORD_SECRET,
-  extraPlugins: [nextCookies()],
+export const getCurrentUser = cache(async () => {
+  const token = await getToken();
+  return await fetchQuery(api.auth.safeGetCurrentUser, {}, { token });
 });
 
-export const getSession = cache(async () =>
-  auth.api.getSession({ headers: await headers() }),
-);
+// Server action helper to sign out
+export async function signOut() {
+  const token = await getToken();
+  await fetchAction(api.auth.signOut, {}, { token });
+}

@@ -1,14 +1,9 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
-import {
-  useMutation,
-  useQueryClient,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-
-import type { RouterOutputs } from "@acme/api";
-import { CreatePostSchema } from "@acme/db/schema";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@acme/convex";
+import { CreatePostSchema } from "@acme/convex";
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import {
@@ -21,27 +16,8 @@ import {
 import { Input } from "@acme/ui/input";
 import { toast } from "@acme/ui/toast";
 
-import { useTRPC } from "~/trpc/react";
-
 export function CreatePostForm() {
-  const trpc = useTRPC();
-
-  const queryClient = useQueryClient();
-  const createPost = useMutation(
-    trpc.post.create.mutationOptions({
-      onSuccess: async () => {
-        form.reset();
-        await queryClient.invalidateQueries(trpc.post.pathFilter());
-      },
-      onError: (err) => {
-        toast.error(
-          err.data?.code === "UNAUTHORIZED"
-            ? "You must be logged in to post"
-            : "Failed to create post",
-        );
-      },
-    }),
-  );
+  const createPost = useMutation(api.posts.create);
 
   const form = useForm({
     defaultValues: {
@@ -51,7 +27,19 @@ export function CreatePostForm() {
     validators: {
       onSubmit: CreatePostSchema,
     },
-    onSubmit: (data) => createPost.mutate(data.value),
+    onSubmit: async (data) => {
+      try {
+        await createPost(data.value);
+        form.reset();
+      } catch (err) {
+        const error = err as Error;
+        toast.error(
+          error.message === "Unauthorized"
+            ? "You must be logged in to post"
+            : "Failed to create post",
+        );
+      }
+    },
   });
 
   return (
@@ -118,8 +106,17 @@ export function CreatePostForm() {
 }
 
 export function PostList() {
-  const trpc = useTRPC();
-  const { data: posts } = useSuspenseQuery(trpc.post.all.queryOptions());
+  const posts = useQuery(api.posts.list);
+
+  if (!posts) {
+    return (
+      <div className="flex w-full flex-col gap-4">
+        <PostCardSkeleton />
+        <PostCardSkeleton />
+        <PostCardSkeleton />
+      </div>
+    );
+  }
 
   if (posts.length === 0) {
     return (
@@ -145,24 +142,22 @@ export function PostList() {
 }
 
 export function PostCard(props: {
-  post: RouterOutputs["post"]["all"][number];
+  post: { _id: string; title: string; content: string };
 }) {
-  const trpc = useTRPC();
-  const queryClient = useQueryClient();
-  const deletePost = useMutation(
-    trpc.post.delete.mutationOptions({
-      onSuccess: async () => {
-        await queryClient.invalidateQueries(trpc.post.pathFilter());
-      },
-      onError: (err) => {
-        toast.error(
-          err.data?.code === "UNAUTHORIZED"
-            ? "You must be logged in to delete a post"
-            : "Failed to delete post",
-        );
-      },
-    }),
-  );
+  const deletePost = useMutation(api.posts.remove);
+
+  const handleDelete = async () => {
+    try {
+      await deletePost({ id: props.post._id });
+    } catch (err) {
+      const error = err as Error;
+      toast.error(
+        error.message === "Unauthorized"
+          ? "You must be logged in to delete a post"
+          : "Failed to delete post",
+      );
+    }
+  };
 
   return (
     <div className="bg-muted flex flex-row rounded-lg p-4">
@@ -174,7 +169,7 @@ export function PostCard(props: {
         <Button
           variant="ghost"
           className="text-primary cursor-pointer text-sm font-bold uppercase hover:bg-transparent hover:text-white"
-          onClick={() => deletePost.mutate(props.post.id)}
+          onClick={handleDelete}
         >
           Delete
         </Button>

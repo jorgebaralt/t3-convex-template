@@ -1,44 +1,29 @@
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import { Button } from "@acme/ui/button";
 
-import { auth, getSession } from "~/auth/server";
+import { getCurrentUser, signOut } from "~/auth/server";
+import { DiscordSignInButton } from "./discord-sign-in-button";
 
 export async function AuthShowcase() {
-  const session = await getSession();
+  const user = await getCurrentUser();
 
-  if (!session) {
+  if (!user) {
     return (
-      <form>
-        <Button
-          size="lg"
-          formAction={async () => {
-            "use server";
-
-            const res = await auth.api.signInSocial({
-              body: {
-                provider: "discord",
-                callbackURL: "/",
-              },
-            });
-            if (!res.url) {
-              throw new Error("No URL returned from signInSocial");
-            }
-            console.log(`zzz res`, res);
-            redirect(res.url);
-          }}
-        >
-          Sign in with Discord
-        </Button>
-      </form>
+      <div>
+        <DiscordSignInButton />
+      </div>
     );
   }
+
+  // User is authenticated, display their name
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const userName = user.name ?? user.email ?? "Unknown";
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
       <p className="text-center text-2xl">
-        <span>Logged in as {session.user.name}</span>
+        <span>Logged in as {userName}</span>
       </p>
 
       <form>
@@ -46,9 +31,7 @@ export async function AuthShowcase() {
           size="lg"
           formAction={async () => {
             "use server";
-            await auth.api.signOut({
-              headers: await headers(),
-            });
+            await signOut();
             redirect("/");
           }}
         >
