@@ -41,7 +41,7 @@ function CreatePost() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const createPost = useMutation(api.posts.create);
+  const createPost = useMutation(api.core.posts.create);
 
   const handleCreate = async () => {
     try {
@@ -103,8 +103,8 @@ function MobileAuth() {
 }
 
 export default function Index() {
-  const posts = useQuery(api.posts.list);
-  const deletePost = useMutation(api.posts.remove);
+  const posts = useQuery(api.core.posts.list);
+  const deletePost = useMutation(api.core.posts.remove);
 
   return (
     <SafeAreaView className="bg-background">

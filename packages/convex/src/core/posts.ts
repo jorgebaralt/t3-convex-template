@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { authComponent } from "./auth";
+import { mutation, query } from "../_generated/server";
+import { authComponent } from "../auth";
 
 // List all posts (public query)
 export const list = query({
@@ -59,3 +59,5 @@ export const remove = mutation({
     await ctx.db.delete(args.id);
   },
 });
+
+

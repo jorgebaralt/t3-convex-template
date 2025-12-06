@@ -1,14 +1,6 @@
-import { defineSchema, defineTable } from "convex/server";
-import { v } from "convex/values";
+import { defineSchema } from "convex/server";
+import { post } from "./schema/posts.schema";
 
 export default defineSchema({
-  // Post table
-  post: defineTable({
-    title: v.string(),
-    content: v.string(),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  })
-    .index("by_created_at", ["createdAt"])
-    .index("by_updated_at", ["updatedAt"]),
+  post,
 });

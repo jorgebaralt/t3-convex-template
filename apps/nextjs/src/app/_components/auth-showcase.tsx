@@ -16,8 +16,7 @@ export async function AuthShowcase() {
     );
   }
 
-  // User is authenticated, display their name
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
   const userName = user.name ?? user.email ?? "Unknown";
 
   return (

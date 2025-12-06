@@ -2,8 +2,8 @@
 
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "@acme/convex";
-import { CreatePostSchema } from "@acme/convex";
+
+import { api, CreatePostSchema } from "@acme/convex";
 import { cn } from "@acme/ui";
 import { Button } from "@acme/ui/button";
 import {
@@ -17,7 +17,7 @@ import { Input } from "@acme/ui/input";
 import { toast } from "@acme/ui/toast";
 
 export function CreatePostForm() {
-  const createPost = useMutation(api.posts.create);
+  const createPost = useMutation(api.core.posts.create);
 
   const form = useForm({
     defaultValues: {
@@ -106,7 +106,7 @@ export function CreatePostForm() {
 }
 
 export function PostList() {
-  const posts = useQuery(api.posts.list);
+  const posts = useQuery(api.core.posts.list);
 
   if (!posts) {
     return (
@@ -135,16 +135,18 @@ export function PostList() {
   return (
     <div className="flex w-full flex-col gap-4">
       {posts.map((p) => {
-        return <PostCard key={p.id} post={p} />;
+        return <PostCard key={p._id} post={p} />;
       })}
     </div>
   );
 }
 
+type Post = NonNullable<ReturnType<typeof useQuery<typeof api.core.posts.list>>>[number];
+
 export function PostCard(props: {
-  post: { _id: string; title: string; content: string };
+  post: Post;
 }) {
-  const deletePost = useMutation(api.posts.remove);
+  const deletePost = useMutation(api.core.posts.remove);
 
   const handleDelete = async () => {
     try {
