@@ -86,14 +86,20 @@ function MobileAuth() {
         {session?.user.name ? `Hello, ${session.user.name}` : "Not logged in"}
       </Text>
       <Pressable
-        onPress={() =>
-          session
-            ? authClient.signOut()
-            : authClient.signIn.social({
+        onPress={async () => {
+          try {
+            if (session) {
+              await authClient.signOut();
+            } else {
+              await authClient.signIn.social({
                 provider: "discord",
                 callbackURL: "/",
-              })
-        }
+              });
+            }
+          } catch (err) {
+            console.error("Auth action failed:", err);
+          }
+        }}
         className="bg-primary flex items-center rounded-sm p-2"
       >
         <Text>{session ? "Sign Out" : "Sign In With Discord"}</Text>

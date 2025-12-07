@@ -5,7 +5,7 @@ import { Button } from "@acme/ui/button";
 import { getCurrentUser, signOut } from "~/auth/server";
 import { DiscordSignInButton } from "./discord-sign-in-button";
 
-export async function AuthShowcase() {
+export async function AuthShowcase() {  
   const user = await getCurrentUser();
 
   if (!user) {

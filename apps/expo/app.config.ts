@@ -4,7 +4,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: "servifai",
   slug: "servifai",
-  scheme: "expo",
+  scheme: "servifai",
   version: "0.1.0",
   orientation: "portrait",
   icon: "./assets/icon-light.png",

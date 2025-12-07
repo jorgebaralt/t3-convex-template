@@ -1,4 +1,5 @@
 import type { GenericCtx } from "@convex-dev/better-auth";
+import { expo } from "@better-auth/expo";
 import { createClient } from "@convex-dev/better-auth";
 import { convex } from "@convex-dev/better-auth/plugins";
 import { betterAuth } from "better-auth";
@@ -7,8 +8,6 @@ import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { action, query } from "./_generated/server";
 
-// SITE_URL = your Next.js app (http://localhost:3000)
-// CONVEX_SITE_URL = your Convex deployment (https://xxx.convex.site)
 const siteUrl = process.env.SITE_URL!;
 const discordClientId = process.env.AUTH_DISCORD_ID!;
 const discordClientSecret = process.env.AUTH_DISCORD_SECRET!;
@@ -29,7 +28,20 @@ export const createAuth = (
       disabled: optionsOnly,
     },
     baseURL: siteUrl,
-    trustedOrigins: ["expo://", "http://localhost:3000"],
+    trustedOrigins: [
+      "servifai://",
+      siteUrl,
+      ...(process.env.NODE_ENV === "development"
+        ? [
+            "exp://", // Expo Go origin header
+            "exp://*/*", // Trust all Expo development URLs
+            "exp://10.0.0.*:*/*", // Trust 10.0.0.x IP range
+            "exp://192.168.*.*:*/*", // Trust 192.168.x.x IP range
+            "exp://172.*.*.*:*/*", // Trust 172.x.x.x IP range
+            "exp://localhost:*/*", // Trust localhost
+          ]
+        : []),
+    ],
     database: authComponent.adapter(ctx),
     // Configure simple, non-verified email/password to get started
     emailAndPassword: {
@@ -45,7 +57,8 @@ export const createAuth = (
       },
     },
     plugins: [
-      // The Convex plugin is required for Convex compatibility
+      // The Expo and Convex plugins are required for Convex compatibility
+      expo(),
       convex(),
     ],
 

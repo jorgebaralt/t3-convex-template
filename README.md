@@ -71,6 +71,59 @@ tooling
 
 > In this template, we use `@acme` as a placeholder for package names. As a user, you might want to replace it with your own organization or project name. You can use find-and-replace to change all the instances of `@acme` to something like `@my-company` or `@project-name`.
 
+## Authentication Architecture
+
+This project uses **Better Auth** with **Convex** for authentication. Here's how the components work together:
+
+### Flow Overview
+
+```
+Expo App → Next.js Auth API → Convex Auth Config → Discord OAuth → Next.js Callback → Expo Deep Link
+```
+
+### Configuration
+
+**Convex (`packages/convex/src/auth.ts`):**
+- `baseURL`: Next.js URL (`http://localhost:3000` or `SITE_URL`)
+- `redirectURI`: Next.js callback (`${SITE_URL}/api/auth/callback/discord`)
+- Purpose: Provides auth configuration and database adapter
+
+**Next.js (`apps/nextjs/src/app/api/auth/[...all]/route.ts`):**
+- Handles all auth API routes via `nextJsHandler()`
+- Uses Convex auth config internally
+- Purpose: OAuth callback handler and session management
+
+**Expo (`apps/expo/src/utils/auth.ts`):**
+- `baseURL`: Next.js URL (`http://localhost:3000`)
+- Purpose: Initiates auth flow and receives deep link redirects
+
+### Key Points
+
+- ✅ **Expo calls Next.js** for authentication (not Convex directly)
+- ✅ **Discord redirects to Next.js** callback URL
+- ✅ **Next.js redirects back to Expo** via deep link (`servifai://`)
+- ✅ **Convex** stores auth state and provides the auth configuration
+
+### Environment Variables
+
+- `SITE_URL`: Next.js app URL (used for OAuth redirects)
+- `CONVEX_SITE_URL`: Convex deployment URL (used for Convex HTTP routes, not auth)
+- `EXPO_PUBLIC_CONVEX_URL`: Convex WebSocket URL (for Convex client)
+- `EXPO_PUBLIC_NEXTJS_URL`: Next.js app URL for Expo auth client (optional, defaults to `http://localhost:3000`)
+
+### Common Issues & Fixes
+
+**Issue: `MISSING_OR_NULL_ORIGIN` error**
+- **Fix**: Add `Origin` header in Expo auth client (`fetchOptions.headers.Origin`)
+- **Reason**: React Native doesn't send Origin header by default
+
+**Issue: `state_mismatch` error**
+- **Fix**: Ensure Expo calls Next.js (not Convex) for auth
+- **Reason**: State is stored on the server that initiates OAuth flow
+
+**Issue: HTML document returned instead of session**
+- **Fix**: Ensure `baseURL` points to Next.js auth API, not Expo app itself
+
 ## Quick Start
 
 > **Note**

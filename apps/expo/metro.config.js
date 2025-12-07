@@ -11,6 +11,7 @@ config.cacheStores = [
     root: path.join(__dirname, "node_modules", ".cache", "metro"),
   }),
 ];
+config.resolver.unstable_enablePackageExports = true; 
 
 /** @type {import('expo/metro-config').MetroConfig} */
 module.exports = withNativewind(config);

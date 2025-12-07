@@ -1,12 +1,13 @@
 import { SafeAreaView, Text, View } from "react-native";
 import { Stack, useGlobalSearchParams } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "convex/react";
 
-import { trpc } from "~/utils/api";
+import type { Id } from "@acme/convex/data-model";
+import { api } from "@acme/convex";
 
 export default function Post() {
   const { id } = useGlobalSearchParams<{ id: string }>();
-  const { data } = useQuery(trpc.post.byId.queryOptions({ id }));
+  const data = useQuery(api.core.posts.get, { id: id as Id<"post"> });
 
   if (!data) return null;
 

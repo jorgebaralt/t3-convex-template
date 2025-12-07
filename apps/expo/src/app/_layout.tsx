@@ -1,14 +1,13 @@
-import { useColorScheme } from "react-native";
+import { ConvexBetterAuthProvider } from "@convex-dev/better-auth/react";
+import { ConvexReactClient } from "convex/react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { ConvexProvider } from "convex/react";
-import { ConvexReactClient } from "convex/react";
-import Constants from "expo-constants";
-
+import { useColorScheme } from "react-native";
+import { authClient } from "~/utils/auth";
 import "../styles.css";
 
 // Get Convex URL from environment
-const convexUrl = Constants.expoConfig?.extra?.convexUrl || process.env.EXPO_PUBLIC_CONVEX_URL;
+const convexUrl = process.env.EXPO_PUBLIC_CONVEX_URL;
 
 if (!convexUrl) {
   throw new Error("Missing EXPO_PUBLIC_CONVEX_URL environment variable");
@@ -21,7 +20,7 @@ const convex = new ConvexReactClient(convexUrl);
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
-    <ConvexProvider client={convex}>
+    <ConvexBetterAuthProvider client={convex} authClient={authClient}>
       {/*
           The Stack component displays the current page.
           It also allows you to configure your screens 
@@ -37,6 +36,6 @@ export default function RootLayout() {
         }}
       />
       <StatusBar />
-    </ConvexProvider>
+    </ConvexBetterAuthProvider>
   );
 }
