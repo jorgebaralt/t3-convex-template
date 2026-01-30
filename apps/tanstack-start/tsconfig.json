@@ -1,0 +1,14 @@
+{
+  "extends": "@acme/tsconfig/base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "types": ["vite/client", "vinxi/types/client", "vinxi/types/server"],
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.d.ts", "*.ts", "*.tsx"],
+  "exclude": ["node_modules", ".output", ".vinxi"]
+}

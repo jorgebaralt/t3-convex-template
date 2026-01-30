@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 
 export const CreatePostSchema = z.object({
   title: z.string().max(256),

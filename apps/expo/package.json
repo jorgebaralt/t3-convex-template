@@ -17,9 +17,9 @@
   "dependencies": {
     "@acme/convex": "workspace:*",
     "@better-auth/expo": "catalog:",
-    "@convex-dev/better-auth": "^0.9.11",
+    "@convex-dev/better-auth": "^0.10.10",
     "@legendapp/list": "^2.0.14",
-    "better-auth": "1.3.34",
+    "better-auth": "catalog:",
     "convex": "^1.30.0",
     "expo": "~54.0.20",
     "expo-constants": "~18.0.10",

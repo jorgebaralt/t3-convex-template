@@ -2,7 +2,9 @@
   "extends": "@acme/tsconfig/compiled-package.json",
   "compilerOptions": {
     "moduleResolution": "bundler",
-    "incremental": false
+    "incremental": false,
+    "types": ["node"],
+    "skipLibCheck": true
   },
   "include": ["src", "index.ts", "*.ts"],
   "exclude": ["node_modules"]

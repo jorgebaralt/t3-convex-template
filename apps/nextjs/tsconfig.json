@@ -8,6 +8,6 @@
     },
     "plugins": [{ "name": "next" }]
   },
-  "include": [".", ".next/types/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts", "*.ts", "*.tsx"],
   "exclude": ["node_modules"]
 }

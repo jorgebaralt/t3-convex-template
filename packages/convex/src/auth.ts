@@ -7,6 +7,7 @@ import { betterAuth } from "better-auth";
 import { components } from "./_generated/api";
 import { DataModel } from "./_generated/dataModel";
 import { action, query } from "./_generated/server";
+import authConfig from "./auth.config";
 
 const siteUrl = process.env.SITE_URL!;
 const discordClientId = process.env.AUTH_DISCORD_ID!;
@@ -31,6 +32,7 @@ export const createAuth = (
     trustedOrigins: [
       "servifai://",
       siteUrl,
+      "http://localhost:3001", // TanStack Start dev server - outside conditional for Convex server
       ...(process.env.NODE_ENV === "development"
         ? [
             "exp://", // Expo Go origin header
@@ -53,13 +55,14 @@ export const createAuth = (
       discord: {
         clientId: discordClientId,
         clientSecret: discordClientSecret,
-        redirectURI: `${siteUrl}/api/auth/callback/discord`,
+        // redirectURI is intentionally omitted - Better Auth will use the request origin
+        // This allows multiple apps (Next.js on 3000, TanStack Start on 3001) to share auth
       },
     },
     plugins: [
       // The Expo and Convex plugins are required for Convex compatibility
       expo(),
-      convex(),
+      convex({ authConfig, jwksRotateOnTokenGenerationError: true }),
     ],
 
     onAPIError: {

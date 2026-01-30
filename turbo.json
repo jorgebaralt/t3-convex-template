@@ -54,6 +54,8 @@
     "CONVEX_DEPLOYMENT",
     "SITE_URL",
     "EXPO_PUBLIC_CONVEX_URL",
+    "VITE_CONVEX_URL",
+    "VITE_CONVEX_SITE_URL",
     "PORT"
   ],
   "globalPassThroughEnv": [
