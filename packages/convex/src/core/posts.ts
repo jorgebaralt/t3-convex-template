@@ -30,11 +30,8 @@ export const create = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    // Check authentication
+    // getAuthUser throws ConvexError("Unauthenticated") if not authenticated
     const user = await authComponent.getAuthUser(ctx);
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
 
     const now = Date.now();
     return await ctx.db.insert("post", {
@@ -50,11 +47,8 @@ export const create = mutation({
 export const remove = mutation({
   args: { id: v.id("post") },
   handler: async (ctx, args) => {
-    // Check authentication
+    // getAuthUser throws ConvexError("Unauthenticated") if not authenticated
     const user = await authComponent.getAuthUser(ctx);
-    if (!user) {
-      throw new Error("Unauthorized");
-    }
 
     await ctx.db.delete(args.id);
   },

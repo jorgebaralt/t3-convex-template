@@ -2,6 +2,7 @@ import { convexQuery } from "@convex-dev/react-query";
 import { useForm } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
 import { useMutation } from "convex/react";
+import { ConvexError } from "convex/values";
 
 import { api, CreatePostSchema } from "@acme/convex";
 import { cn } from "@acme/ui";
@@ -36,12 +37,11 @@ export function CreatePostForm() {
         await createPost(data.value);
         form.reset();
       } catch (err) {
-        const error = err as Error;
-        toast.error(
-          error.message === "Unauthorized"
-            ? "You must be logged in to post"
-            : "Failed to create post",
-        );
+        if (err instanceof ConvexError && err.data === "Unauthenticated") {
+          toast.error("You must be logged in to post");
+        } else {
+          toast.error("Failed to create post");
+        }
       }
     },
   });
@@ -160,12 +160,11 @@ export function PostCard(props: { post: Post }) {
     try {
       await deletePost({ id: props.post._id as Id<"post"> });
     } catch (err) {
-      const error = err as Error;
-      toast.error(
-        error.message === "Unauthorized"
-          ? "You must be logged in to delete a post"
-          : "Failed to delete post",
-      );
+      if (err instanceof ConvexError && err.data === "Unauthenticated") {
+        toast.error("You must be logged in to delete a post");
+      } else {
+        toast.error("Failed to delete post");
+      }
     }
   };
 
