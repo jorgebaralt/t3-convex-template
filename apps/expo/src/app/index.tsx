@@ -4,7 +4,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { Link, Stack } from "expo-router";
 import { LegendList } from "@legendapp/list";
 import { useMutation, useQuery } from "convex/react";
+import { ConvexError } from "convex/values";
+import Toast from "react-native-toast-message";
 
+import type { Id } from "@acme/convex/data-model";
 import { api } from "~/utils/api";
 import { authClient } from "~/utils/auth";
 
@@ -48,8 +51,12 @@ function CreatePost() {
       await createPost({ title, content });
       setTitle("");
       setContent("");
-    } catch (error) {
-      console.error("Failed to create post:", error);
+    } catch (err) {
+      if (err instanceof ConvexError && err.data === "Unauthenticated") {
+        Toast.show({ type: "error", text1: "You must be logged in to post" });
+      } else {
+        Toast.show({ type: "error", text1: "Failed to create post" });
+      }
     }
   };
 
@@ -110,7 +117,19 @@ function MobileAuth() {
 
 export default function Index() {
   const posts = useQuery(api.core.posts.list);
-  const deletePost = useMutation(api.core.posts.remove);
+  const deletePostMutation = useMutation(api.core.posts.remove);
+
+  const handleDelete = async (id: Id<"post">) => {
+    try {
+      await deletePostMutation({ id });
+    } catch (err) {
+      if (err instanceof ConvexError && err.data === "Unauthenticated") {
+        Toast.show({ type: "error", text1: "You must be logged in to delete a post" });
+      } else {
+        Toast.show({ type: "error", text1: "Failed to delete post" });
+      }
+    }
+  };
 
   return (
     <SafeAreaView className="bg-background">
@@ -137,7 +156,7 @@ export default function Index() {
           renderItem={(p) => (
             <PostCard
               post={p.item}
-              onDelete={() => deletePost({ id: p.item._id })}
+              onDelete={() => handleDelete(p.item._id)}
             />
           )}
         />
