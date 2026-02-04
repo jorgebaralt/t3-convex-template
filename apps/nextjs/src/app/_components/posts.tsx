@@ -108,12 +108,11 @@ export function CreatePostForm() {
 export function PostList() {
   const posts = useQuery(api.core.posts.list);
 
+
   if (!posts) {
     return (
       <div className="flex w-full flex-col gap-4">
-        <PostCardSkeleton />
-        <PostCardSkeleton />
-        <PostCardSkeleton />
+        <p>No posts yet</p>
       </div>
     );
   }
